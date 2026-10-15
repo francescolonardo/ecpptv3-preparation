@@ -70,7 +70,7 @@ Suppose the computer allocates a buffer of 40 bytes of memory to store 10 intege
 
 An attacker can test for a buffer overflow by sending the computer 11 integers (a total of 44 bytes) as input.
 
-![Buffer Overflow Example 2](./assets/06_buffer_overflows_example1.png)
+![Buffer Overflow Example 2](./assets/06_buffer_overflows_example2.png)
 
 Whatever was in the location after the ten 40 bytes (allocated for our buffer), gets overwritten with the 11th integer of the attacker’s input.
 
@@ -396,11 +396,12 @@ s_block_end("block1");
 
 This script essentially specifies a message like the below, where `[fuzz_string]` represents the location where the SPIKE fuzz strings will be inserted into the message, and `[size_of_data]` represents the size of the data section of the POST request, which contains the fixed string `inputvar=` and the variable data of the fuzz string. This size field will be automatically updated as the fuzz string changes.
 
-```
+```http
 POST /testme.php HTTP/1.1
 Host: testserver.example.com
 Content-Length: [size_of_data]
 Connection: close
+
 inputvar=[fuzz_string]
 ```
 
@@ -422,7 +423,7 @@ Here's how the length of the POST body is calculated:
 
 SPIKE will calculate this length and substitute it into the `Content-Length` header field. The generated HTTP request will look like this:
 
-```
+```http
 POST /testme.php HTTP/1.1
 Host: testserver.example.com
 Content-Length: 17
@@ -844,7 +845,6 @@ Run the script to execute the exploit and observe the result, such as the execut
 This process illustrates how to fuzz a Windows application, analyze crashes, and exploit vulnerabilities.
 
 ---
----
 
 ## Stack-Based Overflow
 
@@ -877,11 +877,10 @@ This code is often referred to as the "shellcode" and is typically injected into
 With control of the program's execution flow and the ability to execute arbitrary code, the attacker can exploit the vulnerability to achieve their objectives, such as gaining unauthorized access to the system, stealing sensitive information, or launching further attacks.
 
 ---
----
 
 ## Structured Exception Handling (SEH) Overflow
 
-### Structured Exception Handling (SEH) - Theory
+### Windows Structured Exception Handling (SEH) - Theory
 
 #### Structured Exception Handling (SEH)
 
@@ -919,7 +918,7 @@ When the exception occurs, the Windows kernel walks through the SEH chain to loc
 5. Code Execution
 The attacker's payload is executed, allowing them to gain control of the application's execution flow. From there, they can execute arbitrary code, escalate privileges, or achieve other malicious objectives.
 
-### Windows SEH Overflow: (with SPIKE) - Lab
+### Windows Structured Exception Handling (SEH) Overflow (with SPIKE) - Lab
 
 #### Lab Environment 
 

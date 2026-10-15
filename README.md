@@ -52,7 +52,7 @@ Whether you're preparing for the eCPPTv3 exam or looking to enhance your penetra
 	- [x] HTML Application (HTA) Attacks (with MSFvenom)
 - [x] Delivery and Execution
 	- [x] File Smuggling with HTML and JavaScript (with MSFvenom)
-	- [x] Initial Access via Spear Phishing Attachment (with MSFvenom)
+	- [x] Initial Access via Spear Phishing Email Attachment (with MSFvenom)
 	- [x] Client-Side Black-Box Penetration Test (with Nmap, MSFvenom, Metasploit)
 - [x] Browser Attacks
 	- [x] Browser-Based Attacks (with BeEF)
@@ -100,7 +100,6 @@ Whether you're preparing for the eCPPTv3 exam or looking to enhance your penetra
 - [x] Windows Post-Exploitation
 	- [x] Windows Post-Exploitation: Dumping and Cracking NTLM Hashes (with Nmap, Metasploit, JohntheRipper/Hashcat)
 	- [x] Windows Black-Box Penetration Test (with Nmap, Metasploit, proxychains, xfreerdp)
-- [x] MITM and Network-Based Attacks
 - [x] Antivirus Evasion (with UPX and Veil-Framework)
 
 ### Exploit Development
@@ -123,7 +122,7 @@ Whether you're preparing for the eCPPTv3 exam or looking to enhance your penetra
 - [x] Finding Buffer Overflow Vulnerabilities
 - [x] Stack-Based Overflows
 - [x] Windows Structured Exception Handling (SEH) Overflow
-- [x] Windows SEH Overflow (with SPIKE)
+- [x] Windows Structured Exception Handling (SEH) Overflow (with SPIKE)
 
 ### Post-Exploitation
 
@@ -153,7 +152,7 @@ Whether you're preparing for the eCPPTv3 exam or looking to enhance your penetra
 	- [x] Windows Lateral Movement with PsExec
 	- [x] Windows Lateral Movement with SMBExec
 	- [x] Windows Lateral Movement with CrackMapExec
-	- [x] Windows Lateral Movement via RDP
+	- [x] Windows Lateral Movement via RDP Session Configuration Files
 	- [x] Windows Lateral Movement via WinRM
 	- [x] Windows Lateral Movement with Metasploit
 	- [x] Windows Lateral Movement with WMIExec
@@ -165,7 +164,7 @@ Whether you're preparing for the eCPPTv3 exam or looking to enhance your penetra
 	- [x] Pivoting via SSH Tunneling
 	- [x] Pivoting with reGeorg
 - [x] Linux Lateral Movement and Pivoting
-	- [x] Linux Lateral Movement and Pivoting: Black-Box Penetration Test (with SOCKS Proxy, SSH Tunneling, Metasploit)
+	- [x] Linux Lateral Movement and Pivoting: Black-Box Penetration Test (with proxychains, SSH Tunneling, Metasploit)
 
 ### Red Teaming
 

